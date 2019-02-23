@@ -38,7 +38,7 @@ if __name__ == '__main__':
 		anno_names = np.sort(os.listdir(anno_dir))
 		assert len(img_names) == len(anno_names)
 
-	model.cuda()
+	#model.cuda()
 	model.eval()
 
 	# Calculate statistics.
@@ -55,7 +55,8 @@ if __name__ == '__main__':
 		img = cv2.resize(img, (im_size[0],im_size[1]))
 		img_to_tensor = Image.fromarray(img)
 		img_tensor = transform(img_to_tensor)
-		img_tensor = Variable(img_tensor.unsqueeze(0)).cuda()
+		#img_tensor = Variable(img_tensor.unsqueeze(0)).cuda()
+		img_tensor = Variable(img_tensor.unsqueeze(0))
 
 		output = model(img_tensor)
 		output_data = output.cpu().data.numpy()[0][0]
@@ -65,7 +66,7 @@ if __name__ == '__main__':
 			anno = cv2.imread(os.path.join(anno_dir, anno_name))
 			anno[anno!=0] = 255
 			if anno.shape[2] == 3:
-				anno = anno[:,:,0]
+				anno = anno[:,:,2]
 				anno = cv2.resize(anno, (im_size[0],im_size[1]))
 
 			# Calculate accuracy, where any value above 0.5 is true, below is false.

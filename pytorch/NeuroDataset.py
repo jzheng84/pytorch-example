@@ -13,7 +13,7 @@ import torch.utils.data as data
 
 class NeuroDataset(data.Dataset):
 
-    def __init__(self, root, im_size, split='train', transform=None, val_samples=80):
+    def __init__(self, root, im_size, split='train', transform=None, val_samples=1):
         self.root = root
         self.transform = transform
         self.split = split
@@ -45,10 +45,10 @@ class NeuroDataset(data.Dataset):
             img_path, target_path = self.test_data[index], self.test_labels[index]
 
         try:
-            img = cv2.imread(img_path)[:,:,0]
+            img = cv2.imread(img_path)[:,:,2]
         except:
             pdb.set_trace()
-        target = cv2.imread(target_path)[:,:,0]
+        target = cv2.imread(target_path)[:,:,2]
         #cv2.imshow('img0', target[:,:,0])
         #cv2.waitKey(2000)
         
@@ -56,7 +56,7 @@ class NeuroDataset(data.Dataset):
         #self.train_data.reshape((len(self.train_labels), H, W, C))
         img = cv2.resize(img, (self.im_size[1],self.im_size[2]))
         target = cv2.resize(target, (self.im_size[1], self.im_size[2]))
-        target[target!=0] = 255
+        #target[target!=0] = 255
         #img.reshape((self.im_size[2], self.im_size[0], self.im_size[1]))
         
         # doing this so that it is consistent with all other datasets
@@ -90,13 +90,11 @@ class NeuroDataset(data.Dataset):
         for line in self.lines:
             imgpath = line
             img_filename = ntpath.basename(imgpath)
-            anno_filename = 'annos_%s' % img_filename
+            anno_filename = '%s' % img_filename
 
             # File adjustment for Axons (Why is there a different naming convention???)
-            if '3400' in img_filename:
-                anno_filename = anno_filename.replace('annos_img', 'annos').replace('_600__', '_600____')
-                imgpath = imgpath.replace('\\ ', ' ')
-            labpath = imgpath.replace('imgs', 'annos').replace(img_filename, anno_filename).replace('\\ ', ' ')
+            labpath = imgpath.replace('imgs', 'annos').replace(img_filename, anno_filename).replace('jpg', 'png')
+
             if not os.path.exists(labpath):
                 print('Could not find label for %s.' % imgpath)
                 continue

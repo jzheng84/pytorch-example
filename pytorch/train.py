@@ -14,7 +14,7 @@ from NeuroDataset import NeuroDataset
 import models.model
 import utils
 
-np.set_printoptions(threshold=np.nan)
+np.set_printoptions(threshold=20)
 torch.set_printoptions(precision=10)
 
 
@@ -143,7 +143,7 @@ def train(epoch):
 
         if batch_idx % args.log_interval == 0:
             val_loss, val_acc = evaluate('val', n_batches=80)
-            train_loss = loss.data[0]
+            train_loss = loss.item()
             iters.append(len(train_loader.dataset)*(epoch-1)+batch_idx)
             lrs.append(lr)
             train_losses.append(train_loss)
@@ -179,7 +179,7 @@ def evaluate(split, verbose=False, n_batches=None):
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
         output = model(data)
-        loss += criterion(output, target).data[0]
+        loss += criterion(output, target).item()
         acc += (np.sum(output.cpu().data.numpy()[target.cpu().data.numpy()!=0] > 0.5) \
             + np.sum(output.cpu().data.numpy()[target.cpu().data.numpy()==0] < 0.5)) / float(args.im_size[1]*args.im_size[2])
         n_examples += output.size(0)
